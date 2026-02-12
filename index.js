@@ -50,10 +50,7 @@ app.post('/webhook',async (req,res) => {
 
             await axios.post(
                 process.env.SF_ENDPOINT,
-                {
-                    phone: from,
-                    message: text
-                },
+                req.body,
                 {
                     headers: {
                         'Content-Type': 'application/json'
