@@ -35,10 +35,40 @@ app.get('/webhook',(req,res) => {
 /* ----------------------------------
    3️⃣ Receive Messages (POST)
 -----------------------------------*/
-app.post('/webhook',(req,res) => {
-    console.log("Incoming Webhook:");
-    console.log(JSON.stringify(req.body,null,2));
-    res.sendStatus(200);
+app.post('/webhook', async (req, res) => {
+    try {
+        console.log("Incoming Webhook:");
+        console.log(JSON.stringify(req.body, null, 2));
+
+        const entry = req.body.entry?.[0];
+        const changes = entry?.changes?.[0];
+        const message = changes?.value?.messages?.[0];
+
+        if (message) {
+            const from = message.from;
+            const text = message.text?.body;
+
+            await axios.post(
+                process.env.SF_ENDPOINT,
+                {
+                    phone: from,
+                    message: text
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${process.env.SF_ACCESS_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+        }
+
+        res.sendStatus(200);
+
+    } catch (error) {
+        console.error(error.response?.data || error.message);
+        res.sendStatus(500);
+    }
 });
 
 app.listen(PORT,() => {
