@@ -35,16 +35,16 @@ app.get('/webhook',(req,res) => {
 /* ----------------------------------
    3️⃣ Receive Messages (POST)
 -----------------------------------*/
-app.post('/webhook', async (req, res) => {
+app.post('/webhook',async (req,res) => {
     try {
         console.log("Incoming Webhook:");
-        console.log(JSON.stringify(req.body, null, 2));
+        console.log(JSON.stringify(req.body,null,2));
 
-        const entry = req.body.entry?.[0];
-        const changes = entry?.changes?.[0];
-        const message = changes?.value?.messages?.[0];
+        const entry = req.body.entry?.[ 0 ];
+        const changes = entry?.changes?.[ 0 ];
+        const message = changes?.value?.messages?.[ 0 ];
 
-        if (message) {
+        if(message) {
             const from = message.from;
             const text = message.text?.body;
 
@@ -56,7 +56,6 @@ app.post('/webhook', async (req, res) => {
                 },
                 {
                     headers: {
-                        Authorization: `Bearer ${process.env.SF_ACCESS_TOKEN}`,
                         'Content-Type': 'application/json'
                     }
                 }
@@ -65,7 +64,7 @@ app.post('/webhook', async (req, res) => {
 
         res.sendStatus(200);
 
-    } catch (error) {
+    } catch(error) {
         console.error(error.response?.data || error.message);
         res.sendStatus(500);
     }
