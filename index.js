@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 
+const customers = require('./customers.json');
+
 const app = express();
 app.use(express.json());
 
@@ -15,55 +17,112 @@ app.get('/',(req,res) => {
 });
 
 /* ----------------------------------
-   2️⃣ Webhook Verification (GET)
+   2️⃣ Meta Webhook Verification
 -----------------------------------*/
 app.get('/webhook',(req,res) => {
-    const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 
     const mode = req.query[ 'hub.mode' ];
     const token = req.query[ 'hub.verify_token' ];
     const challenge = req.query[ 'hub.challenge' ];
 
-    if(mode && token === VERIFY_TOKEN) {
-        console.log("Webhook Verified ✅");
-        res.status(200).send(challenge);
-    } else {
-        res.sendStatus(403);
+    if(mode === 'subscribe' && token === process.env.VERIFY_TOKEN) {
+        console.log('Webhook Verified ✅');
+        return res.status(200).send(challenge);
     }
+
+    return res.sendStatus(403);
 });
 
 /* ----------------------------------
-   3️⃣ Receive Messages (POST)
+   3️⃣ Receive Messages From Meta
 -----------------------------------*/
 app.post('/webhook',async (req,res) => {
     try {
-        console.log("Incoming Webhook:");
-        console.log(JSON.stringify(req.body,null,2));
 
-        const entry = req.body.entry?.[ 0 ];
-        const changes = entry?.changes?.[ 0 ];
-        const message = changes?.value?.messages?.[ 0 ];
+        const phoneNumberId =
+            req.body.entry?.[ 0 ]?.changes?.[ 0 ]?.value?.metadata?.phone_number_id;
 
-        if(message) {
-            const from = message.from;
-            const text = message.text?.body;
-
-            await axios.post(
-                process.env.SF_ENDPOINT,
-                req.body,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+        if(!phoneNumberId) {
+            console.log("No phone_number_id found");
+            return res.sendStatus(200);
         }
+
+        const customer = customers[ phoneNumberId ];
+
+        if(!customer) {
+            console.log("Customer not found:",phoneNumberId);
+            return res.sendStatus(200);
+        }
+
+        console.log(`Routing to ${ customer.name }`);
+
+        // Forward full payload to customer org
+        await axios.post(customer.webhook_url,req.body,{
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Source': 'Convoforce-Middleware',
+                'X-Secret': process.env.INTERNAL_SECRET
+            }
+        });
 
         res.sendStatus(200);
 
     } catch(error) {
-        console.error(error.response?.data || error.message);
+        console.error("Webhook Error:",
+            error.response?.data || error.message);
         res.sendStatus(500);
+    }
+});
+
+/* ----------------------------------
+   4️⃣ Send Message
+   Customer → Middleware → Meta
+-----------------------------------*/
+app.post('/send',async (req,res) => {
+    try {
+
+        const {phone_number_id,to,message} = req.body;
+
+        if(!phone_number_id || !to || !message) {
+            return res.status(400).json({
+                error: "phone_number_id, to, message required"
+            });
+        }
+
+        const customer = customers[ phone_number_id ];
+
+        if(!customer) {
+            return res.status(404).json({
+                error: "Customer not found"
+            });
+        }
+
+        const endpoint =
+            `https://graph.facebook.com/${ process.env.META_API_VERSION }/${ phone_number_id }/messages`;
+
+        const payload = {
+            messaging_product: "whatsapp",
+            to: to,
+            type: "text",
+            text: {body: message}
+        };
+
+        const response = await axios.post(endpoint,payload,{
+            headers: {
+                'Authorization': `Bearer ${ process.env.META_ACCESS_TOKEN }`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        return res.status(200).json(response.data);
+
+    } catch(error) {
+        console.error("Send Error:",
+            error.response?.data || error.message);
+
+        return res.status(500).json({
+            error: "Failed to send message"
+        });
     }
 });
 

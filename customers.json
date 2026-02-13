@@ -1,0 +1,10 @@
+{
+  "1111": {
+    "name": "Customer A",
+    "webhook_url": "https://custA.my.site.com/services/apexrest/webhook"
+  },
+  "2222": {
+    "name": "Customer B",
+    "webhook_url": "https://custB.my.site.com/services/apexrest/webhook"
+  }
+}
