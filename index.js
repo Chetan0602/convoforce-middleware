@@ -81,11 +81,18 @@ app.post('/webhook',async (req,res) => {
 app.post('/send',async (req,res) => {
     try {
 
-        const {phone_number_id,to,message} = req.body;
+        const {
+            phone_number_id,
+            to,
+            message,
+            template_name,
+            template_language,
+            template_params
+        } = req.body;
 
-        if(!phone_number_id || !to || !message) {
+        if(!phone_number_id || !to) {
             return res.status(400).json({
-                error: "phone_number_id, to, message required"
+                error: "phone_number_id and to required"
             });
         }
 
@@ -100,12 +107,52 @@ app.post('/send',async (req,res) => {
         const endpoint =
             `https://graph.facebook.com/${ process.env.META_API_VERSION }/${ phone_number_id }/messages`;
 
-        const payload = {
-            messaging_product: "whatsapp",
-            to: to,
-            type: "text",
-            text: {body: message}
-        };
+        let payload;
+
+        // 🔹 TEMPLATE MESSAGE
+        if(template_name) {
+
+            payload = {
+                messaging_product: "whatsapp",
+                to: to,
+                type: "template",
+                template: {
+                    name: template_name,
+                    language: {
+                        code: template_language || "en"
+                    }
+                }
+            };
+
+            // Add dynamic body parameters if provided
+            if(template_params && Array.isArray(template_params)) {
+                payload.template.components = [
+                    {
+                        type: "body",
+                        parameters: template_params.map(param => ({
+                            type: "text",
+                            text: param
+                        }))
+                    }
+                ];
+            }
+
+        }
+        // 🔹 NORMAL TEXT MESSAGE
+        else if(message) {
+
+            payload = {
+                messaging_product: "whatsapp",
+                to: to,
+                type: "text",
+                text: {body: message}
+            };
+
+        } else {
+            return res.status(400).json({
+                error: "Either message or template_name required"
+            });
+        }
 
         const response = await axios.post(endpoint,payload,{
             headers: {
@@ -117,6 +164,7 @@ app.post('/send',async (req,res) => {
         return res.status(200).json(response.data);
 
     } catch(error) {
+
         console.error("Send Error:",
             error.response?.data || error.message);
 
