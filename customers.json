@@ -1,10 +1,10 @@
 {
-  "1111": {
+  "881072021767049": {
     "name": "Customer A",
-    "webhook_url": "https://custA.my.site.com/services/apexrest/webhook"
+    "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/"
   },
-  "2222": {
+  "1002432846277099": {
     "name": "Customer B",
-    "webhook_url": "https://custB.my.site.com/services/apexrest/webhook"
+    "webhook_url": "https://dev-19c-dev-ed.my.site.com/WhatsApp/services/apexrest/dfsle1/convoforce/webhook/v1/*/"
   }
 }
