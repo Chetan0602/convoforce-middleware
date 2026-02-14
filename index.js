@@ -211,6 +211,46 @@ app.get('/media/:mediaId',async (req,res) => {
         return res.status(500).send("Failed to fetch media");
     }
 });
+/* ----------------------------------
+   Download Media Proxy (For Apex)
+-----------------------------------*/
+app.get('/download',async (req,res) => {
+    try {
+
+        const {url} = req.query;
+
+        if(!url) {
+            return res.status(400).send("media url required");
+        }
+
+        console.log("Downloading from Meta:",url);
+
+        const mediaResponse = await axios.get(url,{
+            headers: {
+                Authorization: `Bearer ${ process.env.META_ACCESS_TOKEN }`
+            },
+            responseType: 'stream'
+        });
+
+        // Forward content type to Apex
+        res.setHeader(
+            'Content-Type',
+            mediaResponse.headers[ 'content-type' ] || 'application/octet-stream'
+        );
+
+        // Stream file back to Apex
+        mediaResponse.data.pipe(res);
+
+    } catch(error) {
+
+        console.error(
+            "Download Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(500).send("Failed to download media");
+    }
+});
 app.listen(PORT,() => {
     console.log(`Server running on port ${ PORT }`);
 });
