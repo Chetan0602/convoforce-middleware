@@ -3,8 +3,8 @@
     "name": "Customer A",
     "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/"
   },
-  "1002432846277099": {
+  "981582808371805": {
     "name": "Customer B",
-    "webhook_url": "https://dev-19c-dev-ed.my.site.com/WhatsApp/services/apexrest/dfsle1/convoforce/webhook/v1/*/"
+    "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/"
   }
 }
