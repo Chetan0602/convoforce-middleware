@@ -251,6 +251,72 @@ app.get('/download',async (req,res) => {
         res.status(500).send("Failed to download media");
     }
 });
+/* ----------------------------------
+   Send Media (Proxy + Validation)
+-----------------------------------*/
+app.post('/send-media',async (req,res) => {
+    try {
+
+        const {phone_number_id,payload} = req.body;
+
+        // 🔹 Basic Validation
+        if(!phone_number_id) {
+            return res.status(400).json({
+                error: "phone_number_id required"
+            });
+        }
+
+        if(!payload || typeof payload !== 'object') {
+            return res.status(400).json({
+                error: "Valid payload required"
+            });
+        }
+
+        // 🔹 Customer Exists Check
+        const customer = customers[ phone_number_id ];
+
+        if(!customer) {
+            return res.status(404).json({
+                error: "Customer not found"
+            });
+        }
+
+        // 🔹 Required WhatsApp Fields Check
+        if(!payload.messaging_product || !payload.to || !payload.type) {
+            return res.status(400).json({
+                error: "Invalid WhatsApp payload"
+            });
+        }
+
+        console.log(`Sending media for ${ customer.name }`);
+
+        // 🔹 Build Meta Endpoint
+        const endpoint =
+            `https://graph.facebook.com/${ process.env.META_API_VERSION }/${ phone_number_id }/messages`;
+
+        // 🔹 Forward To Meta
+        const response = await axios.post(endpoint,payload,{
+            headers: {
+                Authorization: `Bearer ${ process.env.META_ACCESS_TOKEN }`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        // 🔥 Return Meta response directly to Apex
+        return res.status(200).json(response.data);
+
+    } catch(error) {
+
+        console.error(
+            "Send Media Error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(500).json(
+            error.response?.data || {error: "Meta call failed"}
+        );
+    }
+});
 app.listen(PORT,() => {
     console.log(`Server running on port ${ PORT }`);
 });
