@@ -173,7 +173,44 @@ app.post('/send',async (req,res) => {
         });
     }
 });
+/* ----------------------------------
+   Get Media URL From Meta
+-----------------------------------*/
+app.get('/media/:mediaId',async (req,res) => {
+    try {
 
+        const {mediaId} = req.params;
+
+        if(!mediaId) {
+            return res.status(400).send("mediaId required");
+        }
+
+        const metaResponse = await axios.get(
+            `https://graph.facebook.com/${ process.env.META_API_VERSION }/${ mediaId }`,
+            {
+                headers: {
+                    Authorization: `Bearer ${ process.env.META_ACCESS_TOKEN }`
+                }
+            }
+        );
+
+        const mediaUrl = metaResponse.data.url;
+
+        if(!mediaUrl) {
+            return res.status(404).send("Media URL not found");
+        }
+
+        // 🔥 Return ONLY URL (same as old Apex behavior)
+        return res.status(200).send(mediaUrl);
+
+    } catch(error) {
+
+        console.error("Media Fetch Error:",
+            error.response?.data || error.message);
+
+        return res.status(500).send("Failed to fetch media");
+    }
+});
 app.listen(PORT,() => {
     console.log(`Server running on port ${ PORT }`);
 });
