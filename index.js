@@ -328,8 +328,9 @@ app.post('/getVerifiedName',async (req,res) => {
 
         const accessToken = process.env.META_ACCESS_TOKEN;
 
+        // 🔥 IMPORTANT: /phone_numbers edge use karo
         const response = await axios.get(
-            `https://graph.facebook.com/v19.0/${ phoneNumberId }`,
+            `https://graph.facebook.com/v19.0/${ phoneNumberId }/phone_numbers`,
             {
                 params: {
                     access_token: accessToken
@@ -337,17 +338,32 @@ app.post('/getVerifiedName',async (req,res) => {
             }
         );
 
-        const verifiedName = response.data.verified_name;
+        const metaData = response.data;
+
+        if(!metaData.data || metaData.data.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No phone number found"
+            });
+        }
+
+        const phoneData = metaData.data[ 0 ];
 
         res.json({
             success: true,
-            metaResponse: response.data
+            verified_name: phoneData.verified_name,
+            display_phone_number: phoneData.display_phone_number,
+            code_verification_status: phoneData.code_verification_status,
+            full_response: metaData // optional debug
         });
 
     } catch(error) {
+
+        console.error("Meta Error:",error.response?.data || error.message);
+
         res.status(500).json({
             success: false,
-            message: error.message
+            error: error.response?.data || error.message
         });
     }
 });
