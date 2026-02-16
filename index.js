@@ -341,7 +341,7 @@ app.post('/getVerifiedName',async (req,res) => {
 
         res.json({
             success: true,
-            verified_name: verifiedName
+            metaResponse: response.data
         });
 
     } catch(error) {
