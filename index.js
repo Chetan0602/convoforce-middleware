@@ -317,6 +317,40 @@ app.post('/send-media',async (req,res) => {
         );
     }
 });
+/* ----------------------------------
+   Get Business Verified Name
+-----------------------------------*/
+app.post('/getVerifiedName',async (req,res) => {
+
+    const {phoneNumberId} = req.body;
+
+    try {
+
+        const accessToken = process.env.META_ACCESS_TOKEN;
+
+        const response = await axios.get(
+            `https://graph.facebook.com/v19.0/${ phoneNumberId }`,
+            {
+                params: {
+                    access_token: accessToken
+                }
+            }
+        );
+
+        const verifiedName = response.data.verified_name;
+
+        res.json({
+            success: true,
+            verified_name: verifiedName
+        });
+
+    } catch(error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
 app.listen(PORT,() => {
     console.log(`Server running on port ${ PORT }`);
 });
