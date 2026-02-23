@@ -7,7 +7,7 @@
     "name": "Customer B",
     "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/"
   },
-  "988006227731828": {
+  "1063068320218408": {
     "name": "Customer C",
     "webhook_url": "https://dev-19c-dev-ed.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/"
   }
