@@ -1,7 +1,9 @@
 {
   "881072021767049": {
     "name": "Customer A",
-    "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/"
+    "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
+    "wabaId": "WABA_ID",
+    "webhook_template_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/"
   },
   "1025113127349564": {
     "name": "Customer B",

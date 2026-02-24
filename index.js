@@ -49,6 +49,10 @@ app.post('/webhook',async (req,res) => {
 
         if(!phoneNumberId) {
             console.log("No phone_number_id found");
+            await handlePhoneNotFound(
+                "phone_number_id missing",
+                req.body
+            );
             return res.sendStatus(200);
         }
 
@@ -567,38 +571,80 @@ app.post('/upload-media',async (req,res) => {
         });
     }
 });
-app.post('/webhook',async (req,res) => {
 
-    try {
-
-        console.log("Webhook Body:",JSON.stringify(req.body,null,2));
-
-        const entry = req.body.entry?.[ 0 ];
-        const changes = entry?.changes?.[ 0 ];
-        const value = changes?.value;
-
-        if(!value) {
-            return res.sendStatus(200);
-        }
-
-        if(value.event === 'message_template_status_update') {
-
-            const templateId = value.message_template_id;
-            const newStatus = value.message_template_status;
-
-            console.log("Template ID:",templateId);
-            console.log("New Status:",newStatus);
-
-            // Salesforce call (optional for now)
-        }
-
-        return res.sendStatus(200);
-
-    } catch(error) {
-        console.error("Webhook Error:",error);
-        return res.sendStatus(500);
-    }
-});
 app.listen(PORT,() => {
     console.log(`Server running on port ${ PORT }`);
 });
+
+async function handlePhoneNotFound(reason,webhookBody) {
+
+    try {
+
+        const change = webhookBody.entry?.[ 0 ]?.changes?.[ 0 ];
+        const value = change?.value;
+
+        const eventType = value?.event;
+
+        if(eventType !== 'message_template_status_update') {
+            console.log("Not a template status update event.");
+            return;
+        }
+
+        const templateId = value?.message_template_id;
+        const status = value?.message_template_status;
+
+        // 🔥 Extract WABA ID from webhook
+        const wabaId = webhookBody.entry?.[ 0 ]?.id;
+
+        if(!wabaId) {
+            console.log("WABA ID not found in webhook.");
+            return;
+        }
+
+        console.log("Searching customer by WABA ID:",wabaId);
+
+        // 🔥 Find matching customer by wabaId
+        let matchedCustomer = null;
+
+        for(const phoneId in customers) {
+
+            if(customers[ phoneId ].wabaId === wabaId) {
+                matchedCustomer = customers[ phoneId ];
+                break;
+            }
+        }
+
+        if(!matchedCustomer) {
+            console.log("No customer matched for WABA ID:",wabaId);
+            return;
+        }
+
+        console.log("Customer matched. Sending to Salesforce...");
+
+        // 🔥 Call Salesforce REST API
+        await axios.post(
+            matchedCustomer.sfEndpoint,
+            {
+                templateId: templateId,
+                status: status,
+                reason: reason,
+                fullWebhook: webhookBody
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${ matchedCustomer.sfToken }`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        console.log("Salesforce updated successfully (via WABA match).");
+
+    } catch(error) {
+
+        console.error(
+            "handlePhoneNotFound Error:",
+            error.response?.data || error.message
+        );
+    }
+}
