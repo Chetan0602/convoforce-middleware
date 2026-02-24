@@ -5,7 +5,12 @@ const axios = require('axios');
 const customers = require('./customers.json');
 
 const app = express();
-app.use(express.json());
+
+/* ----------------------------------
+   🔥 VERY IMPORTANT — Increase Limit
+-----------------------------------*/
+app.use(express.json({limit: '100mb'}));
+app.use(express.urlencoded({limit: '100mb',extended: true}));
 
 const PORT = process.env.PORT || 3000;
 
@@ -417,13 +422,6 @@ app.post('/create-template',async (req,res) => {
     }
 });
 
-/* ----------------------------------
-   Global Express Config (IMPORTANT)
------------------------------------*/
-
-// 🔥 MUST be above all routes
-app.use(express.json({limit: '50mb'}));
-app.use(express.urlencoded({limit: '50mb',extended: true}));
 
 /* ----------------------------------
    Upload Media (Dynamic Header)
