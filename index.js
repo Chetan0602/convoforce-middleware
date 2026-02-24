@@ -567,7 +567,7 @@ app.post('/upload-media',async (req,res) => {
         });
     }
 });
-app.post('/template-status',async (req,res) => {
+app.post('/webhook',async (req,res) => {
 
     try {
 
