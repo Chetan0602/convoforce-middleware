@@ -418,6 +418,14 @@ app.post('/create-template',async (req,res) => {
 });
 
 /* ----------------------------------
+   Global Express Config (IMPORTANT)
+-----------------------------------*/
+
+// 🔥 MUST be above all routes
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb',extended: true}));
+
+/* ----------------------------------
    Upload Media (Dynamic Header)
 -----------------------------------*/
 app.post('/upload-media',async (req,res) => {
@@ -434,10 +442,19 @@ app.post('/upload-media',async (req,res) => {
     try {
 
         const accessToken = process.env.META_ACCESS_TOKEN;
-        const apiVersion = process.env.META_API_VERSION;
+        const apiVersion = process.env.META_API_VERSION || 'v19.0';
         const appId = process.env.META_APP_ID;
 
-        // 🔎 Detect content type
+        if(!accessToken || !appId) {
+            return res.status(500).json({
+                success: false,
+                message: "Server configuration missing (META_ACCESS_TOKEN or META_APP_ID)"
+            });
+        }
+
+        /* ----------------------------------
+           Detect Content Type
+        -----------------------------------*/
         const ext = fileName.split('.').pop().toLowerCase();
         let contentType;
 
@@ -457,11 +474,23 @@ app.post('/upload-media',async (req,res) => {
             });
         }
 
-        const fileBuffer = Buffer.from(fileBase64,'base64');
+        /* ----------------------------------
+           Clean Base64 (VERY IMPORTANT)
+        -----------------------------------*/
+        const cleanedBase64 = fileBase64.includes('base64,')
+            ? fileBase64.split('base64,')[ 1 ]
+            : fileBase64;
 
-        /* -------------------------------
+        const fileBuffer = Buffer.from(cleanedBase64,'base64');
+
+        console.log("Uploading file:");
+        console.log("File Name:",fileName);
+        console.log("File Size (bytes):",fileBuffer.length);
+        console.log("Content Type:",contentType);
+
+        /* ----------------------------------
            STEP 1 → Create Upload Session
-        --------------------------------*/
+        -----------------------------------*/
         const sessionResponse = await axios.post(
             `https://graph.facebook.com/${ apiVersion }/${ appId }/uploads`,
             null,
@@ -478,9 +507,17 @@ app.post('/upload-media',async (req,res) => {
 
         const sessionId = sessionResponse.data.id;
 
-        /* -------------------------------
+        if(!sessionId) {
+            return res.status(500).json({
+                success: false,
+                message: "Meta did not return upload session ID",
+                metaResponse: sessionResponse.data
+            });
+        }
+
+        /* ----------------------------------
            STEP 2 → Upload File
-        --------------------------------*/
+        -----------------------------------*/
         const uploadResponse = await axios.post(
             `https://graph.facebook.com/${ apiVersion }/${ sessionId }`,
             fileBuffer,
@@ -488,7 +525,9 @@ app.post('/upload-media',async (req,res) => {
                 headers: {
                     Authorization: `Bearer ${ accessToken }`,
                     'Content-Type': 'application/octet-stream'
-                }
+                },
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity
             }
         );
 
@@ -497,11 +536,16 @@ app.post('/upload-media',async (req,res) => {
         if(!handle) {
             return res.status(500).json({
                 success: false,
-                message: "Meta returned empty media handle"
+                message: "Meta returned empty media handle",
+                metaResponse: uploadResponse.data
             });
         }
 
-        // ✅ Return handle to Salesforce
+        console.log("Media uploaded successfully. Handle:",handle);
+
+        /* ----------------------------------
+           SUCCESS RESPONSE
+        -----------------------------------*/
         return res.status(200).json({
             success: true,
             mediaHandle: handle,
@@ -516,7 +560,8 @@ app.post('/upload-media',async (req,res) => {
         const statusCode =
             error.response?.status || 500;
 
-        console.error("Meta Media Upload Error:",fullError);
+        console.error("Meta Media Upload Error:");
+        console.error(JSON.stringify(fullError,null,2));
 
         return res.status(statusCode).json({
             success: false,
