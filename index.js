@@ -623,7 +623,7 @@ async function handlePhoneNotFound(reason,webhookBody) {
 
         // 🔥 Call Salesforce REST API
         await axios.post(
-            matchedCustomer.sfEndpoint,
+            matchedCustomer.webhook_template_url,
             {
                 templateId: templateId,
                 status: status,
