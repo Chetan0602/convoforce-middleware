@@ -367,6 +367,56 @@ app.post('/getVerifiedName',async (req,res) => {
         });
     }
 });
+/* ----------------------------------
+   Create Template
+-----------------------------------*/
+app.post('/create-template',async (req,res) => {
+
+    const {wabaId,payload} = req.body;
+
+    if(!wabaId || !payload) {
+        return res.json({
+            success: false,
+            message: "wabaId and payload are required"
+        });
+    }
+
+    try {
+
+        const accessToken = process.env.META_ACCESS_TOKEN;
+
+        const response = await axios.post(
+            `https://graph.facebook.com/v19.0/${ wabaId }/message_templates`,
+            payload,
+            {
+                headers: {
+                    Authorization: `Bearer ${ accessToken }`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        // ✅ Always return full Meta response
+        return res.json({
+            success: true,
+            metaResponse: response.data
+        });
+
+    } catch(error) {
+
+        // 🔥 Important: capture full error response
+        const fullError =
+            error.response?.data || error.message;
+
+        console.error("Meta Template Error:",fullError);
+
+        return res.json({
+            success: false,
+            metaError: fullError
+        });
+    }
+});
+
 app.listen(PORT,() => {
     console.log(`Server running on port ${ PORT }`);
 });
