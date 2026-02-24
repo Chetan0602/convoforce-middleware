@@ -567,7 +567,38 @@ app.post('/upload-media',async (req,res) => {
         });
     }
 });
+app.post('/template-status',async (req,res) => {
 
+    try {
+
+        console.log("Webhook Body:",JSON.stringify(req.body,null,2));
+
+        const entry = req.body.entry?.[ 0 ];
+        const changes = entry?.changes?.[ 0 ];
+        const value = changes?.value;
+
+        if(!value) {
+            return res.sendStatus(200);
+        }
+
+        if(value.event === 'message_template_status_update') {
+
+            const templateId = value.message_template_id;
+            const newStatus = value.message_template_status;
+
+            console.log("Template ID:",templateId);
+            console.log("New Status:",newStatus);
+
+            // Salesforce call (optional for now)
+        }
+
+        return res.sendStatus(200);
+
+    } catch(error) {
+        console.error("Webhook Error:",error);
+        return res.sendStatus(500);
+    }
+});
 app.listen(PORT,() => {
     console.log(`Server running on port ${ PORT }`);
 });
