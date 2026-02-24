@@ -632,7 +632,6 @@ async function handlePhoneNotFound(reason,webhookBody) {
             },
             {
                 headers: {
-                    Authorization: `Bearer ${ matchedCustomer.sfToken }`,
                     'Content-Type': 'application/json'
                 }
             }
