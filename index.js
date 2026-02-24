@@ -417,6 +417,114 @@ app.post('/create-template',async (req,res) => {
     }
 });
 
+/* ----------------------------------
+   Upload Media (Dynamic Header)
+-----------------------------------*/
+app.post('/upload-media',async (req,res) => {
+
+    const {fileName,fileBase64} = req.body;
+
+    if(!fileName || !fileBase64) {
+        return res.status(400).json({
+            success: false,
+            message: "fileName and fileBase64 are required"
+        });
+    }
+
+    try {
+
+        const accessToken = process.env.META_ACCESS_TOKEN;
+        const apiVersion = process.env.META_API_VERSION;
+        const appId = process.env.META_APP_ID;
+
+        // 🔎 Detect content type
+        const ext = fileName.split('.').pop().toLowerCase();
+        let contentType;
+
+        if([ 'jpg','jpeg','png' ].includes(ext)) {
+            contentType = `image/${ ext === 'jpg' ? 'jpeg' : ext }`;
+        }
+        else if(ext === 'mp4') {
+            contentType = 'video/mp4';
+        }
+        else if(ext === 'pdf') {
+            contentType = 'application/pdf';
+        }
+        else {
+            return res.status(400).json({
+                success: false,
+                message: "Unsupported file type"
+            });
+        }
+
+        const fileBuffer = Buffer.from(fileBase64,'base64');
+
+        /* -------------------------------
+           STEP 1 → Create Upload Session
+        --------------------------------*/
+        const sessionResponse = await axios.post(
+            `https://graph.facebook.com/${ apiVersion }/${ appId }/uploads`,
+            null,
+            {
+                params: {
+                    file_length: fileBuffer.length,
+                    file_type: contentType
+                },
+                headers: {
+                    Authorization: `Bearer ${ accessToken }`
+                }
+            }
+        );
+
+        const sessionId = sessionResponse.data.id;
+
+        /* -------------------------------
+           STEP 2 → Upload File
+        --------------------------------*/
+        const uploadResponse = await axios.post(
+            `https://graph.facebook.com/${ apiVersion }/${ sessionId }`,
+            fileBuffer,
+            {
+                headers: {
+                    Authorization: `Bearer ${ accessToken }`,
+                    'Content-Type': 'application/octet-stream'
+                }
+            }
+        );
+
+        const handle = uploadResponse.data.h;
+
+        if(!handle) {
+            return res.status(500).json({
+                success: false,
+                message: "Meta returned empty media handle"
+            });
+        }
+
+        // ✅ Return handle to Salesforce
+        return res.status(200).json({
+            success: true,
+            mediaHandle: handle,
+            metaResponse: uploadResponse.data
+        });
+
+    } catch(error) {
+
+        const fullError =
+            error.response?.data || error.message;
+
+        const statusCode =
+            error.response?.status || 500;
+
+        console.error("Meta Media Upload Error:",fullError);
+
+        return res.status(statusCode).json({
+            success: false,
+            metaError: fullError
+        });
+    }
+});
+
 app.listen(PORT,() => {
     console.log(`Server running on port ${ PORT }`);
 });
