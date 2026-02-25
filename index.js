@@ -594,7 +594,9 @@ async function handlePhoneNotFound(reason,webhookBody) {
         const value = change.value;
 
         // ✅ Correct check
-        if(field !== 'message_template_status_update') {
+        if(field !== 'message_template_status_update' &&
+            field !== 'message_template_components_update' &&
+            field !== 'message_template_quality_update') {
             console.log("Not a template status update event:",field);
             return;
         }
