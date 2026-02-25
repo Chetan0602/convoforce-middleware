@@ -43,7 +43,8 @@ app.get('/webhook',(req,res) => {
 -----------------------------------*/
 app.post('/webhook',async (req,res) => {
     try {
-
+        console.log("webhook:...req",req);
+        console.log("webhook:...res",res);
         const phoneNumberId =
             req.body.entry?.[ 0 ]?.changes?.[ 0 ]?.value?.metadata?.phone_number_id;
 
