@@ -579,12 +579,12 @@ app.listen(PORT,() => {
 async function handlePhoneNotFound(reason,webhookBody) {
 
     try {
-
+        console.log("webhookBody.....",webhookBody);
         const change = webhookBody.entry?.[ 0 ]?.changes?.[ 0 ];
         const value = change?.value;
 
         const eventType = value?.event;
-
+        console.log("Not a template status update event.",eventType);
         if(eventType !== 'message_template_status_update') {
             console.log("Not a template status update event.");
             return;
