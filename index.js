@@ -580,21 +580,31 @@ app.listen(PORT,() => {
 async function handlePhoneNotFound(reason,webhookBody) {
 
     try {
-        console.log("webhookBody.....",webhookBody);
-        const change = webhookBody.entry?.[ 0 ]?.changes?.[ 0 ];
-        const value = change?.value;
 
-        const eventType = value?.event;
-        console.log("Not a template status update event.",eventType);
-        if(eventType !== 'message_template_status_update') {
-            console.log("Not a template status update event.");
+        console.log("webhookBody.....",webhookBody);
+
+        const change = webhookBody.entry?.[ 0 ]?.changes?.[ 0 ];
+
+        if(!change) {
+            console.log("No change object found.");
             return;
         }
 
-        const templateId = value?.message_template_id;
-        const status = value?.message_template_status;
+        const field = change.field;
+        const value = change.value;
 
-        // 🔥 Extract WABA ID from webhook
+        // ✅ Correct check
+        if(field !== 'message_template_status_update') {
+            console.log("Not a template status update event:",field);
+            return;
+        }
+
+        // ✅ Correct fields
+        const templateId = value?.message_template_id;
+        const templateName = value?.message_template_name;
+        const status = value?.event; // APPROVED / REJECTED / etc
+
+        // ✅ Extract WABA ID
         const wabaId = webhookBody.entry?.[ 0 ]?.id;
 
         if(!wabaId) {
@@ -604,7 +614,6 @@ async function handlePhoneNotFound(reason,webhookBody) {
 
         console.log("Searching customer by WABA ID:",wabaId);
 
-        // 🔥 Find matching customer by wabaId
         let matchedCustomer = null;
 
         for(const phoneId in customers) {
@@ -622,13 +631,15 @@ async function handlePhoneNotFound(reason,webhookBody) {
 
         console.log("Customer matched. Sending to Salesforce...");
 
-        // 🔥 Call Salesforce REST API
+        // ✅ Send to Salesforce
         await axios.post(
             matchedCustomer.webhook_template_url,
             {
                 templateId: templateId,
+                templateName: templateName,
                 status: status,
-                reason: reason,
+                reason: value?.reason || reason,
+                wabaId: wabaId,
                 fullWebhook: webhookBody
             },
             {
