@@ -14,13 +14,21 @@ app.use(express.urlencoded({limit: '100mb',extended: true}));
 
 const PORT = process.env.PORT || 3000;
 
+app.listen(PORT,() => {
+    console.log(`Server running on port ${ PORT }`);
+});
 /* ----------------------------------
    1️⃣ Test Route
 -----------------------------------*/
 app.get('/',(req,res) => {
     res.send('Convoforce Middleware Running ✅');
 });
-
+/* ----------------------------------
+    wake
+-----------------------------------*/
+app.get("/wake",(req,res) => {
+    res.send("Server Awake");
+});
 /* ----------------------------------
    2️⃣ Meta Webhook Verification
 -----------------------------------*/
@@ -182,6 +190,90 @@ app.post('/send',async (req,res) => {
             error: "Failed to send message"
         });
     }
+});
+/* ----------------------------------
+   4️⃣ Send Template Message → Middleware → Meta
+-----------------------------------*/
+app.post("/send-template",async (req,res) => {
+
+    try {
+
+        const {phoneNumberId,payload} = req.body;
+
+        // 🔹 Validation
+        if(!phoneNumberId) {
+            return res.status(400).json({
+                success: false,
+                message: "phoneNumberId is required"
+            });
+        }
+
+        if(!payload) {
+            return res.status(400).json({
+                success: false,
+                message: "payload is required"
+            });
+        }
+
+        if(!payload.to) {
+            return res.status(400).json({
+                success: false,
+                message: "Recipient phone number missing"
+            });
+        }
+
+        // 🔹 Ensure messaging product exists
+        payload.messaging_product = "whatsapp";
+
+        // 🔹 Meta Graph API endpoint
+        const endpoint =
+            `https://graph.facebook.com/${ process.env.META_API_VERSION }/${ phoneNumberId }/messages`;
+
+        console.log("---------- SEND TEMPLATE REQUEST ----------");
+        console.log("Phone Number ID:",phoneNumberId);
+        console.log("Payload:",JSON.stringify(payload,null,2));
+
+        const response = await axios.post(
+            endpoint,
+            payload,
+            {
+                headers: {
+                    Authorization: `Bearer ${ process.env.META_ACCESS_TOKEN }`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        console.log("---------- META RESPONSE ----------");
+        console.log(JSON.stringify(response.data,null,2));
+
+        return res.status(200).json({
+            success: true,
+            data: response.data
+        });
+
+    } catch(error) {
+
+        console.error("---------- META ERROR ----------");
+
+        if(error.response) {
+            console.error(JSON.stringify(error.response.data,null,2));
+
+            return res.status(error.response.status).json({
+                success: false,
+                error: error.response.data
+            });
+        }
+
+        console.error(error.message);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+
+    }
+
 });
 /* ----------------------------------
    Get Media URL From Meta
@@ -573,9 +665,7 @@ app.post('/upload-media',async (req,res) => {
     }
 });
 
-app.listen(PORT,() => {
-    console.log(`Server running on port ${ PORT }`);
-});
+
 
 async function handlePhoneNotFound(reason,webhookBody) {
 
