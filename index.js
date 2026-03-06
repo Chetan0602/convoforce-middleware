@@ -643,6 +643,30 @@ app.post('/upload-media',async (req,res) => {
         console.log("Media uploaded successfully. Handle:",handle);
 
         /* ----------------------------------
+            STEP 3 → Upload Media for Messaging
+        -----------------------------------*/
+
+        const form = new FormData();
+
+        form.append("file",fileBuffer,fileName);
+        form.append("messaging_product","whatsapp");
+
+        const mediaUploadResponse = await axios.post(
+            `https://graph.facebook.com/${ apiVersion }/1025113127349564/media`,
+            form,
+            {
+                headers: {
+                    Authorization: `Bearer ${ accessToken }`,
+                    ...form.getHeaders()
+                }
+            }
+        );
+
+        const mediaId = mediaUploadResponse.data.id;
+
+        console.log("Media ID:",mediaId);
+
+        /* ----------------------------------
            SUCCESS RESPONSE
         -----------------------------------*/
         return res.status(200).json({
