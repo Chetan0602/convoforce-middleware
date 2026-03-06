@@ -684,7 +684,8 @@ app.post('/upload-media',async (req,res) => {
         return res.status(200).json({
             success: true,
             mediaHandle: handle,
-            metaResponse: uploadResponse.data
+            metaResponse: uploadResponse.data,
+            mediaId: mediaId
         });
 
     } catch(error) {
