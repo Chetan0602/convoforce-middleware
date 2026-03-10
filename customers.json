@@ -10,6 +10,12 @@
     "wabaId": "1406870060427795",
     "webhook_template_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
   },
+  "1008937708976832": {
+    "name": "Light Force IQ",
+    "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
+    "wabaId": "1474186537636005",
+    "webhook_template_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
+  },
   "1063068320218408": {
     "name": "Customer C",
     "webhook_url": "https://dev-19c-dev-ed.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/"
