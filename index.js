@@ -713,10 +713,10 @@ app.post("/phone-details",async (req,res) => {
 
     try {
 
-        const {phoneId} = req.body;
+        const {phoneId,wabaId} = req.body;
 
         const response = await axios.get(
-            `https://graph.facebook.com/v19.0/${ phoneId }?fields=phone_numbers`,
+            `https://graph.facebook.com/v19.0/${ wabaId }?fields=phone_numbers`,
             {
                 headers: {
                     Authorization: `Bearer ${ process.env.META_ACCESS_TOKEN }`
@@ -743,10 +743,10 @@ app.post("/verification-status",async (req,res) => {
 
     try {
 
-        const {wabaId} = req.body;
+        const {wabaId,phoneId} = req.body;
 
         const response = await axios.get(
-            `https://graph.facebook.com/v19.0/${ wabaId }?fields=code_verification_status`,
+            `https://graph.facebook.com/v19.0/${ phoneId }?fields=code_verification_status`,
             {
                 headers: {
                     Authorization: `Bearer ${ process.env.META_ACCESS_TOKEN }`
