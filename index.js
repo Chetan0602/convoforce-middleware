@@ -719,7 +719,7 @@ app.post("/phone-details",async (req,res) => {
             `https://graph.facebook.com/v19.0/${ phoneId }?fields=phone_numbers`,
             {
                 headers: {
-                    Authorization: `Bearer ${ process.env.WHATSAPP_ACCESS_TOKEN }`
+                    Authorization: `Bearer ${ process.env.META_ACCESS_TOKEN }`
                 }
             }
         );
@@ -749,7 +749,7 @@ app.post("/verification-status",async (req,res) => {
             `https://graph.facebook.com/v19.0/${ wabaId }?fields=code_verification_status`,
             {
                 headers: {
-                    Authorization: `Bearer ${ process.env.WHATSAPP_ACCESS_TOKEN }`
+                    Authorization: `Bearer ${ process.env.META_ACCESS_TOKEN }`
                 }
             }
         );
@@ -783,7 +783,7 @@ app.post("/register-pin",async (req,res) => {
             },
             {
                 headers: {
-                    Authorization: `Bearer ${ process.env.WHATSAPP_ACCESS_TOKEN }`,
+                    Authorization: `Bearer ${ process.env.META_ACCESS_TOKEN }`,
                     "Content-Type": "application/json"
                 }
             }
