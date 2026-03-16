@@ -706,7 +706,100 @@ app.post('/upload-media',async (req,res) => {
     }
 });
 
+/* ----------------------------------
+  Get Phone Details
+-----------------------------------*/
+app.post("/phone-details",async (req,res) => {
 
+    try {
+
+        const {phoneId} = req.body;
+
+        const response = await axios.get(
+            `https://graph.facebook.com/v19.0/${ phoneId }?fields=phone_numbers`,
+            {
+                headers: {
+                    Authorization: `Bearer ${ process.env.WHATSAPP_ACCESS_TOKEN }`
+                }
+            }
+        );
+
+        res.json(response.data);
+
+    } catch(error) {
+
+        res.status(500).json({
+            error: error.response?.data || error.message
+        });
+
+    }
+
+});
+/* ----------------------------------
+  Check Verification Status
+-----------------------------------*/
+
+app.post("/verification-status",async (req,res) => {
+
+    try {
+
+        const {wabaId} = req.body;
+
+        const response = await axios.get(
+            `https://graph.facebook.com/v19.0/${ wabaId }?fields=code_verification_status`,
+            {
+                headers: {
+                    Authorization: `Bearer ${ process.env.WHATSAPP_ACCESS_TOKEN }`
+                }
+            }
+        );
+
+        res.json(response.data);
+
+    } catch(error) {
+
+        res.status(500).json({
+            error: error.response?.data || error.message
+        });
+
+    }
+
+});
+/* ----------------------------------
+  Register-pin
+-----------------------------------*/
+
+app.post("/register-pin",async (req,res) => {
+
+    try {
+
+        const {phoneId,pin} = req.body;
+
+        const response = await axios.post(
+            `https://graph.facebook.com/v19.0/${ phoneId }/register`,
+            {
+                messaging_product: "whatsapp",
+                pin: pin
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${ process.env.WHATSAPP_ACCESS_TOKEN }`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        res.json(response.data);
+
+    } catch(error) {
+
+        res.status(500).json({
+            error: error.response?.data || error.message
+        });
+
+    }
+
+});
 
 async function handlePhoneNotFound(reason,webhookBody) {
 
