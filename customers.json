@@ -12,11 +12,17 @@
     "webhook_template_url": "https://nsiqinfotechpvtltd8-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
   },
   "881072021767049": {
-    "name": "Test WhatsApp Business Account",
-    "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
+    "name": "Test WhatsApp Business Account - Malhar's ORG",
+    "webhook_url": "https://nsiqinfotechpvtltd8-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
     "wabaId": "1594007248453201",
-    "webhook_template_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
+    "webhook_template_url": "https://nsiqinfotechpvtltd8-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
   },
+  // "881072021767049": {
+  // "name": "Test WhatsApp Business Account",
+  // "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
+  // "wabaId": "1594007248453201",
+  // "webhook_template_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
+  // },
   "1008937708976832": {
     "name": "Light Force IQ",
     "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
