@@ -24,10 +24,10 @@
     "wabaId": "1474186537636005",
     "webhook_template_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
   },
-  "1031956066665185": {
+  "1002432846277099": {
     "name": "Siddhi's ORG",
     "webhook_url": "https://nsiqinfotech26-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
-    "wabaId": "2375634416204575",
+    "wabaId": "1547437809919721",
     "webhook_template_url": "https://nsiqinfotech26-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
   }
 }
