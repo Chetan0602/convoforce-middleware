@@ -271,6 +271,59 @@ app.post('/send-reply',async (req,res) => {
     }
 });
 /* ----------------------------------
+   👍 Send Reaction
+-----------------------------------*/
+app.post('/send-reaction',async (req,res) => {
+    try {
+
+        const {
+            phone_number_id,
+            to,
+            messageId,
+            emoji
+        } = req.body;
+
+        if(!phone_number_id || !to || !messageId || !emoji) {
+            return res.status(400).json({
+                error: "phone_number_id, to, messageId, emoji required"
+            });
+        }
+
+        const endpoint =
+            `https://graph.facebook.com/${ process.env.META_API_VERSION }/${ phone_number_id }/messages`;
+
+        const payload = {
+            messaging_product: "whatsapp",
+            to: to,
+            type: "reaction",
+            reaction: {
+                message_id: messageId,
+                emoji: emoji
+            }
+        };
+
+        console.log("REACTION PAYLOAD:",JSON.stringify(payload,null,2));
+
+        const response = await axios.post(endpoint,payload,{
+            headers: {
+                'Authorization': `Bearer ${ process.env.META_ACCESS_TOKEN }`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        return res.status(200).json(response.data);
+
+    } catch(error) {
+
+        console.error("Reaction Error:",
+            error.response?.data || error.message);
+
+        return res.status(500).json({
+            error: error.response?.data || "Failed to send reaction"
+        });
+    }
+});
+/* ----------------------------------
    4️⃣ Send Template Message → Middleware → Meta
 -----------------------------------*/
 app.post("/send-template",async (req,res) => {
