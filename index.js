@@ -196,6 +196,81 @@ app.post('/send',async (req,res) => {
     }
 });
 /* ----------------------------------
+   🔁 Send Thread Reply Only
+-----------------------------------*/
+app.post('/send-reply',async (req,res) => {
+    try {
+
+        const {
+            phone_number_id,
+            to,
+            message,
+            parentMessageId
+        } = req.body;
+
+        // -------------------------
+        // Validation
+        // -------------------------
+        if(!phone_number_id || !to || !message || !parentMessageId) {
+            return res.status(400).json({
+                error: "phone_number_id, to, message, parentMessageId required"
+            });
+        }
+
+        const customer = customers[ phone_number_id ];
+
+        if(!customer) {
+            return res.status(404).json({
+                error: "Customer not found"
+            });
+        }
+
+        // -------------------------
+        // Meta Endpoint
+        // -------------------------
+        const endpoint =
+            `https://graph.facebook.com/${ process.env.META_API_VERSION }/${ phone_number_id }/messages`;
+
+        // -------------------------
+        // Payload (THREAD REPLY)
+        // -------------------------
+        const payload = {
+            messaging_product: "whatsapp",
+            to: to,
+            type: "text",
+            context: {
+                message_id: parentMessageId // 🔥 MAIN FIELD
+            },
+            text: {
+                body: message
+            }
+        };
+
+        console.log("THREAD PAYLOAD:",JSON.stringify(payload,null,2));
+
+        // -------------------------
+        // API Call
+        // -------------------------
+        const response = await axios.post(endpoint,payload,{
+            headers: {
+                'Authorization': `Bearer ${ process.env.META_ACCESS_TOKEN }`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        return res.status(200).json(response.data);
+
+    } catch(error) {
+
+        console.error("Thread Reply Error:",
+            error.response?.data || error.message);
+
+        return res.status(500).json({
+            error: error.response?.data || "Failed to send thread reply"
+        });
+    }
+});
+/* ----------------------------------
    4️⃣ Send Template Message → Middleware → Meta
 -----------------------------------*/
 app.post("/send-template",async (req,res) => {
