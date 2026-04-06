@@ -35,11 +35,5 @@
     "webhook_url": "https://orgfarm-274dc46086-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
     "wabaId": "2157630768397517",
     "webhook_template_url": "https://orgfarm-274dc46086-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
-  },
-  "_1062404256952452": {
-    "name": "Sopan's ORG - Experience Cloud",
-    "webhook_url": "https://orgfarm-274dc46086-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
-    "wabaId": "2157630768397517",
-    "webhook_template_url": "https://orgfarm-274dc46086-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
   }
 }
