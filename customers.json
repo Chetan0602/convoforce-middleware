@@ -48,16 +48,16 @@
     "wabaId": "1547437809919721",
     "webhook_template_url": "https://orgfarm-b47e97ccee-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
   },
-  "--1137506996103646": {
-    "name": "Sopan's ORG - Real Number +91 95742 08113",
-    "webhook_url": "https://orgfarm-274dc46086-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
-    "wabaId": "--1471807047760346",
-    "webhook_template_url": "https://orgfarm-274dc46086-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
-  },
   "1137506996103646": {
     "name": "Sopan's ORG - Real Number +91 95742 08113",
-    "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
+    "webhook_url": "https://orgfarm-274dc46086-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
     "wabaId": "1471807047760346",
+    "webhook_template_url": "https://orgfarm-274dc46086-dev-ed.develop.my.site.com/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
+  },
+  "--1137506996103646": {
+    "name": "Sopan's ORG - Real Number +91 95742 08113",
+    "webhook_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/whatsapp/webhooks/v1/*/",
+    "wabaId": "--1471807047760346",
     "webhook_template_url": "https://whatsappconn-dev-ed.develop.my.site.com/WhatsApp/services/apexrest/NSIQ_WhatsApp/template-status-update/v1/*/"
   }
 }
